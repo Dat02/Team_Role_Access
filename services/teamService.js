@@ -10,44 +10,44 @@ class TeamService {
         this.db = db;
     }
 
-    async create(teamName) {
+    async create(team_name) {
         // team: teamName -> teamId
-        const team_id = await this.db('teams').insert({team_name: teamName}).returning('team_id');
+        const team_id = await this.db('teams').insert({team_name}).returning('team_id');
         return team_id;
         // create details; teamId, userId, role_id
     }
 
     async createDetail({main_manager_id, team_id,members,managers}) {
 
-        const memberRecords = members.map((memberId) => {
+        const member_records = members.map((memberId) => {
             return {user_id: memberId, team_id, role_id: 4};
         });
 
-        const managerRecords = managers.map((managerId) => {
+        const manager_records = managers.map((managerId) => {
             return {user_id: managerId, team_id, role_id: 3};
         });
 
         const insertMainManger  = await this.db('team_details').insert({user_id: main_manager_id, team_id, role_id: 5}).returning('*');
-        const insertMembers = await this.db('team_details').insert(memberRecords).returning('*');
-        const insertManagers = await this.db('team_details').insert(managerRecords).returning('*');
+        const insertMembers = await this.db('team_details').insert(member_records).returning('*');
+        const insertManagers = await this.db('team_details').insert(manager_records).returning('*');
 
         return {'members': insertMembers, 'managers': insertManagers, 'main_manger': insertMainManger};
     }
 
     async addMembertoTeam({team_id, member_id}){
-        const insertMember = await this.db('team_details').insert({team_id, user_id: member_id, role_id: 4}).returning('*');
-        return insertMember;
+        const inserted_member = await this.db('team_details').insert({team_id, user_id: member_id, role_id: 4}).returning('*');
+        return inserted_member;
     }
 
     async deleteMemberFromTeam({team_id, member_id}){
-        const deletedMember = await this.db('team_details').where({team_id, user_id: member_id}).delete();
-        return deletedMember;
+        const deleted_member = await this.db('team_details').where({team_id, user_id: member_id}).delete();
+        return deleted_member;
     }
 
 
     async addManagertoTeam({team_id, manager_id}){
-        const insertManager = await this.db('team_details').insert({team_id, user_id: manager_id, role_id: 3}).returning('*');
-        return insertManager;
+        const inserted_manager = await this.db('team_details').insert({team_id, user_id: manager_id, role_id: 3}).returning('*');
+        return inserted_manager;
     }
 
     async getMembersFromTeam({team_id}) {
@@ -57,9 +57,9 @@ class TeamService {
                                .where('team_details.team_id', team_id)
                                .where('team_details.role_id', 4) ;
 
-        const memberIds = members.map((member) => member.user_id);
+        const member_ids = members.map((member) => member.user_id);
 
-        return memberIds;
+        return member_ids;
     }
 
     async getManagersFromTeam({team_id}){
@@ -69,8 +69,8 @@ class TeamService {
                                .where('team_details.team_id', team_id)
                                .where('team_details.role_id', 3) ;
 
-        const managerIds = managers.map((manager) => manager.user_id);
-        return managerIds;
+        const manager_ids = managers.map((manager) => manager.user_id);
+        return manager_ids;
     }
 
     async getMainManagerFromTeam({team_id}){
@@ -80,9 +80,9 @@ class TeamService {
                                .where('team_details.team_id', team_id)
                                .where('team_details.role_id', 5) ;
 
-        const mainManagerId = managers.at(0).user_id;
+        const main_manager_id = managers.at(0).user_id;
 
-        return mainManagerId;
+        return main_manager_id;
     }
 
 

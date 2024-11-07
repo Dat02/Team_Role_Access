@@ -7,7 +7,7 @@ class UserService {
         this.db = db;
     }
 
-    async serchUserbyUserName({user_name}) {
+    async searchUserbyUserName({user_name}) {
         const user = await this.db('users').select('*').where({user_name});
         return user[0];
     }
