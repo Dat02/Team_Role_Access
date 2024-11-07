@@ -85,6 +85,20 @@ class TeamService {
         return main_manager_id;
     }
 
+    async upsert({team_id, managers, members}){
+
+        const new_team_info = [];
+        managers.forEach((manager_id) => {
+            new_team_info.push({team_id, user_id: manager_id, role_id: 3});
+        });
+        members.forEach((member_id) => {
+            new_team_info.push({team_id, user_id: member_id, role_id: 4});
+        });
+        
+      await this.db('team_details').insert(new_team_info).onConflict(['team_id', 'user_id']).merge();
+
+    }
+
 
 
 
