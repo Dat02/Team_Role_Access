@@ -63,7 +63,7 @@ class TeamService {
             if(user.role_id == 3) managers.push({user_id: user.user_id, user_name: user.user_name});
             if(user.role_id == 4) members.push({user_id: user.user_id, user_name: user.user_name});
         });
-        
+
         return {team_id: teamId, team_name: teamName, managers, members};
         
     }
@@ -146,7 +146,8 @@ class TeamService {
             new_team_info.push({team_id, user_id: member_id, role_id: 4});
         });
         
-      await this.db('team_details').insert(new_team_info).onConflict(['team_id', 'user_id']).merge();
+      const updatedUsers =  await this.db('team_details').insert(new_team_info).onConflict(['team_id', 'user_id']).merge();
+      return updatedUsers;
 
     }
 

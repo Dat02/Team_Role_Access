@@ -132,7 +132,10 @@ class TeamController {
 
         const {managers , members} = req.body;
 
-        await this.teamService.upsert({team_id, managers, members});
+        const updatedUsers = await this.teamService.upsert({team_id, managers, members});
+
+        res.status(200).json(updatedUsers);
+        
     }
     
 
