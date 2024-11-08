@@ -13,6 +13,11 @@ module.exports = {
       password: process.env.POSTGRES_DEV_PASSWORD,
       database: process.env.POSTGRES_DEV_DATABASE
     },
+    pool: {
+      min: 2,
+      max: 10,
+      acquireTimeoutMillis: 10000
+    },
     migrations: {
       directory: "./database/migrations"
     },
