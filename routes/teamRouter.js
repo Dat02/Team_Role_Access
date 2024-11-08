@@ -3,8 +3,9 @@ const teamController = require('../controllers/teamController');
 const { checkRole } = require('../middleware/auth');
 
 
-// router.get('/', teamController.getAll);
-// router.get('/:teamId', teamController.getTeam);
+router.get('/', teamController.getAll);
+router.get('/details', teamController.getAllDetails);
+router.get('/:teamId', teamController.getTeam);
 router.post('/', checkRole(3),teamController.create);
 router.post('/:teamId/members', teamController.addMember);
 router.post('/:teamId/managers', checkRole(3), teamController.addManager);

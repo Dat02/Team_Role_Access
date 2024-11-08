@@ -18,6 +18,18 @@ class UserController {
         }
     }
 
+    getUser = async (req,res,next) => {
+
+        try {
+            const userId = req.params.userId;
+            const user = await this.userService.find({userId});
+            res.status(200).json(user);
+        } catch (error) {
+            next(error);
+        }
+
+    }
+
     createUser = async (req,res,next) => {
         try {
             const user = req.body;
@@ -35,7 +47,7 @@ class UserController {
             console.log(user_name, password);
 
             if(!user_name) return next(errorHandler(401,'user field is required'));
-            const user = await this.userService.serchUserbyUserName({user_name});
+            const user = await this.userService.searchUserbyUserName({user_name});
             console.log(user);
 
             if(!user) return next(errorHandler(401, 'user not found'));
@@ -44,7 +56,7 @@ class UserController {
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRETE);
             res.cookie('jwt', token);
 
-            res.status(200).json(token);
+            res.status(200).json({token});
 
         } catch (error) {
             next(error);

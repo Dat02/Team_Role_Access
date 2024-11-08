@@ -1,6 +1,6 @@
 
 
-
+const knex = require('knex');
 const db = require('../config/dbConfig');
 const { errorHandler } = require('../middleware/error');
 
@@ -15,6 +15,57 @@ class TeamService {
         const team_id = await this.db('teams').insert({team_name}).returning('team_id');
         return team_id;
         // create details; teamId, userId, role_id
+    }
+
+    async getAll() {
+        const teams = await this.db('teams').select('*').returning('*');
+        return teams;
+    }
+
+    async getAllDetails (){
+       const teamsRaw = await this.getAll();
+       console.log(teamsRaw);
+
+       const allTeams = await Promise.all(teamsRaw.map(async (team) => {
+            const teamId =  team.team_id;
+
+            const users = await db('team_details').join('teams','teams.team_id', 'team_details.team_id', )
+                              .join('users', 'users.user_id', 'team_details.user_id')
+                              .select('users.user_id', 'users.user_name','team_details.role_id')
+                              .where('team_details.team_id', teamId)
+                              .whereIn('team_details.role_id', [3, 4]);
+
+            const managers = [], members = [];
+
+            users.forEach((user) => {
+                if(user.role_id == 3) managers.push({user_id: user.user_id, user_name: user.user_name});
+                if(user.role_id == 4) members.push({user_id: user.user_id, user_name: user.user_name});
+            });
+
+            return {team_id: teamId, team_name: team.team_name, managers, members};
+        }));
+        return allTeams;
+    }
+
+    async getTeam({teamId}) {
+        const teamName = await (await db('teams').select('team_name').where('team_id', teamId)).at(0).team_name;
+        console.log(teamName);
+
+        const users = await db('team_details').join('teams','teams.team_id', 'team_details.team_id', )
+                          .join('users', 'users.user_id', 'team_details.user_id')
+                          .select('users.user_id', 'users.user_name','team_details.role_id',)
+                          .where('team_details.team_id', teamId)
+                          .whereIn('team_details.role_id', [3, 4]);
+
+        const managers = [], members = [];
+
+        users.forEach((user) => {
+            if(user.role_id == 3) managers.push({user_id: user.user_id, user_name: user.user_name});
+            if(user.role_id == 4) members.push({user_id: user.user_id, user_name: user.user_name});
+        });
+        
+        return {team_id: teamId, team_name: teamName, managers, members};
+        
     }
 
     async createDetail({main_manager_id, team_id,members,managers}) {

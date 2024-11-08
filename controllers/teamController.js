@@ -9,17 +9,46 @@ class TeamController {
         this.teamService = TeamService;
     }
 
+    getAll = async (req,res,next) => {
+        try {
+
+            const teams = await this.teamService.getAll();
+            res.status(200).json(teams);
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getAllDetails  = async (req,res,next) => {
+        try {
+            const allTeams = await this.teamService.getAllDetails();
+            res.status(200).json(allTeams);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getTeam = async (req,res,next) => {
+        try {
+            const teamId  = req.params.teamId;
+            const team = await this.teamService.getTeam({teamId});
+            res.status(200).json(team);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     create = async (req,res,next) => {
         try {
 
             const {role_id, user_id} = req.user;
-            console.log(role_id, user_id);
 
             const {teamName, members, managers} = req.body;
             const team_id = await (await this.teamService.create(teamName)).at(0).team_id;
             const result = await this.teamService.createDetail({main_manager_id: user_id,team_id, members, managers});
 
-            res.status(200).json(result);
+            res.status(200).json({team_id, team_name: teamName, members, managers});
         } catch (error) {
             next(error);   
         }
