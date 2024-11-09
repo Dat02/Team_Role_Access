@@ -23,8 +23,8 @@ class UserService {
 
     async create(user) {
         const {username, password, role_id} = user;
-        const newUser = await this.db('users').insert({user_name: username,password,role_id}).returning('*');
-        return newUser;
+        const newUsers = await this.db('users').insert({user_name: username,password,role_id}).returning('*');
+        return newUsers.at(0);
     }
 
 }

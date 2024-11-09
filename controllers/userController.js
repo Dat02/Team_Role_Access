@@ -23,7 +23,7 @@ class UserController {
         try {
             const userId = req.params.userId;
             const user = await this.userService.find({userId});
-            res.status(200).json(user);
+            res.status(200).json({user});
         } catch (error) {
             next(error);
         }
@@ -34,7 +34,7 @@ class UserController {
         try {
             const user = req.body;
             const new_user = await this.userService.create(user);
-            res.status(200).json(new_user);
+            res.status(200).json({new_user});
         } catch (error) {
             next(error);
         }
