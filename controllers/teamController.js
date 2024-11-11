@@ -1,5 +1,4 @@
 
-const { RowDescriptionMessage } = require('pg-protocol/dist/messages');
 const { errorHandler } = require('../middleware/error');
 const TeamService = require('../services/teamService');
 
@@ -90,8 +89,6 @@ class TeamController {
         } catch (error) {
             next(error);
         }
-
-        
     }
 
     deleteMember  = async (req,res,next) => {
@@ -138,9 +135,13 @@ class TeamController {
     updateTeam = async (req,res,next) => {
 
         const {user_id} = req.user;
+        
+
         const team_id = req.params.teamId;
 
         const main_manager_id = await this.teamService.getMainManagerFromTeam({team_id});
+
+        console.log(user_id, main_manager_id);
         
         if(user_id != main_manager_id) return next(errorHandler(403, 'only main manager can add other managers'));
 

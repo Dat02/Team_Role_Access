@@ -1,6 +1,6 @@
 
 
-const knex = require('knex');
+
 const db = require('../config/dbConfig');
 const { errorHandler } = require('../middleware/error');
 
@@ -135,13 +135,12 @@ class TeamService {
         try {
             const team = await this.getTeam({teamId: team_id});
 
-            const managers = await this.db('team_details').select('users.user_id')
+            const main_manager_id = await this.db('team_details').select('users.user_id')
                                .join('users', 'users.user_id', 'team_details.user_id')
                                .where('team_details.team_id', team_id)
-                               .where('team_details.role_id', 5) ;
-            const main_manager_id = managers[0].user_id;
+                               .where('team_details.role_id', 5).first();
 
-            return main_manager_id;
+            return main_manager_id ? main_manager_id.user_id : undefined ;
         } catch (error) {
             throw error;
         }
@@ -151,22 +150,27 @@ class TeamService {
     async upsert({team_id, managers, members}){
 
         const new_team_info = [];
-        managers.forEach((manager_id) => {
-            new_team_info.push({team_id, user_id: manager_id, role_id: 3});
-        });
-        members.forEach((member_id) => {
-            new_team_info.push({team_id, user_id: member_id, role_id: 4});
-        });
+
+        if(managers){
+            managers.forEach((manager_id) => {
+                new_team_info.push({team_id, user_id: manager_id, role_id: 3});
+            });
+        }
+
+        if(members){
+            members.forEach((member_id) => {
+                new_team_info.push({team_id, user_id: member_id, role_id: 4});
+            });
+        }
+
+        console.log(new_team_info);
         
-      const updatedUsers =  await this.db('team_details').insert(new_team_info).onConflict(['team_id', 'user_id']).merge();
+      await this.db('team_details').delete().where({team_id}).whereNotIn('role_id', [5]);
+      await this.db('team_details').insert(new_team_info);
+
       return await this.getTeam({teamId: team_id});
 
     }
-
-
-
-
-
 }
 
 module.exports = new TeamService();
