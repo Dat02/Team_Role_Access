@@ -1,6 +1,4 @@
 
-
-
 const db = require('../config/dbConfig');
 const { errorHandler } = require('../middleware/error');
 
@@ -71,7 +69,6 @@ class TeamService {
         } catch (error) {
             throw error;
         }
-        
         
     }
 
@@ -149,26 +146,38 @@ class TeamService {
 
     async upsert({team_id, managers, members}){
 
-        const new_team_info = [];
+        try {
 
-        if(managers){
-            managers.forEach((manager_id) => {
-                new_team_info.push({team_id, user_id: manager_id, role_id: 3});
-            });
+            const new_team_info = [];
+
+            if(managers){
+                managers.forEach((manager_id) => {
+                    new_team_info.push({team_id, user_id: manager_id, role_id: 3});
+                });
+            }
+
+            if(members){
+                members.forEach((member_id) => {
+                    new_team_info.push({team_id, user_id: member_id, role_id: 4});
+                });
+            }
+
+            console.log(new_team_info);
+
+            await this.db.transaction(async trx => {
+
+                // delete all users from team_id
+                await trx('team_details').delete().where({team_id}).whereNotIn('role_id', [5]);
+                // insert it again
+                await trx('team_details').insert(new_team_info);
+                
+            })
+
+            return await this.getTeam({teamId: team_id});
+        } catch (error) {
+            console.log(error);
         }
-
-        if(members){
-            members.forEach((member_id) => {
-                new_team_info.push({team_id, user_id: member_id, role_id: 4});
-            });
-        }
-
-        console.log(new_team_info);
         
-      await this.db('team_details').delete().where({team_id}).whereNotIn('role_id', [5]);
-      await this.db('team_details').insert(new_team_info);
-
-      return await this.getTeam({teamId: team_id});
 
     }
 }
