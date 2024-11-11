@@ -1,4 +1,5 @@
 
+const { validationResult } = require('express-validator');
 const { errorHandler } = require('../middleware/error');
 const TeamService = require('../services/teamService');
 
@@ -30,6 +31,9 @@ class TeamController {
 
     getTeam = async (req,res,next) => {
         try {
+            const errors = validationResult(req);
+            if(!errors.isEmpty()) return next(errorHandler(401,'Input Valid', errors));
+            
             const teamId  = req.params.teamId;
             const team = await this.teamService.getTeam({teamId});
             res.status(200).json(team);

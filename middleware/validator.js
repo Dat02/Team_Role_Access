@@ -1,8 +1,14 @@
-const { check } = require("express-validator");
-const { body, param, validationResult } = require('express-validator');
 
 
-const addTeamValidator = [
-    check('teamId', 'The teamId is required.').not().isEmpty(),
-    check('post_id', 'The post_id is required.').not().isEmpty(),
-]
+const { body, param } = require('express-validator');
+
+const getTeamRule = [
+  
+  param('teamId')
+    .isInt()
+    .withMessage('team ID must be an integer'),
+
+];
+
+
+module.exports = {getTeamRule}

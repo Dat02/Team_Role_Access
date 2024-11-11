@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const teamController = require('../controllers/teamController');
 const { checkRole } = require('../middleware/auth');
+const { getTeamRule } = require('../middleware/validator');
 
 
 router.get('/', teamController.getAll);
 router.get('/details', teamController.getAllDetails);
-router.get('/:teamId', teamController.getTeam);
+router.get('/:teamId',getTeamRule, teamController.getTeam);
 
 router.post('/', checkRole(3),teamController.create);
 router.post('/:teamId/members', teamController.addMember);
