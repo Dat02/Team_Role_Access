@@ -167,10 +167,10 @@ class TeamService {
             await this.db.transaction(async trx => {
 
                 // delete all users from team_id
-                await trx('team_details').delete().where({team_id}).whereNotIn('role_id', [5]);
+                await trx('team_details').where({team_id}).whereNotIn('role_id', [5]).delete();
                 // insert it again
                 await trx('team_details').insert(new_team_info);
-                
+
             })
 
             return await this.getTeam({teamId: team_id});
