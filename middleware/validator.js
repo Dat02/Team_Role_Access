@@ -1,26 +1,12 @@
+const { validationResult } = require("express-validator");
+const { errorHandler } = require("./error");
 
 
-const { body, param } = require('express-validator');
+const inputValidator = (req,res,next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) return next(errorHandler(401,'api arguments are not valid', errors.errors));
 
-const getTeamRule = [
+    next();
+}
 
-param('teamId')
-    .isInt()
-    .withMessage('team ID must be an integer'),
-
-param('memberId')
-    .isInt() 
-    .withMessage('member Id must be an integer'),
-
-param('managerId')
-    .isInt()
-    .withMessage('manager ID must be an integer')
-
-];
-
-
-
-
-
-
-module.exports = {getTeamRule}
+module.exports = inputValidator;

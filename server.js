@@ -1,16 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { graphqlHTTP } = require('express-graphql');
 require('dotenv').config();
 
 //route to services
 const teamRouter = require('./routes/teamRouter');
+const authRouter = require('./routes/authRouter');
 
 //
 const {verifyToken, isUser} = require('./middleware/auth');
 
-const graphQlSchema = require('./graphQL/schema/index');
 
 const app = express();
 
@@ -18,15 +17,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-app.listen(process.env.PORT, () => {console.log('server is running');});
 
-app.use('/graphql', isUser, graphqlHTTP((req,res) => ({
-    graphiql: true,
-    schema: graphQlSchema,
-    context: {req,res}
-})));
+const PORT = process.env.PORT || 4000;
+app.listen(process.env.PORT, () => {console.log(`server is running ${PORT}`);});
 
-app.use('/teams', verifyToken,teamRouter);
+app.use('/', authRouter);
+app.use('/teams', verifyToken, teamRouter);
 
 
 app.use((err, req, res, next) => {
@@ -41,5 +37,3 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-module.exports = app;

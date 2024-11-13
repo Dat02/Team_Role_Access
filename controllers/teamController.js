@@ -1,5 +1,4 @@
 
-const { validationResult } = require('express-validator');
 const { errorHandler } = require('../middleware/error');
 const TeamService = require('../services/teamService');
 
@@ -31,8 +30,6 @@ class TeamController {
 
     getTeam = async (req,res,next) => {
         try {
-            const errors = validationResult(req);
-            if(!errors.isEmpty()) return next(errorHandler(401,'Input Valid', errors));
             
             const teamId  = req.params.teamId;
             const team = await this.teamService.getTeam({teamId});
@@ -45,13 +42,14 @@ class TeamController {
     create = async (req,res,next) => {
         try {
 
+            console.log(req.user);
             const {role_id, user_id} = req.user;
 
             const {teamName, members, managers} = req.body;
-            const team_id = await (await this.teamService.create(teamName)).at(0).team_id;
-            const teams = await this.teamService.createDetail({main_manager_id: user_id,team_id, members, managers});
+            const teamId = await (await this.teamService.create(teamName)).at(0).team_id;
+            const teams = await this.teamService.createDetail({mainManagerId: user_id,teamId, members, managers});
 
-            res.status(200).json({team_id, team_name: teamName, members, managers});
+            res.status(200).json({teamId, teamName, members, managers});
         } catch (error) {
             next(error);   
         }
@@ -59,18 +57,18 @@ class TeamController {
 
     addMember =  async (req,res,next) => {
         try {
-            const user_id =  req.user.user_id;
+            const userId =  req.user.userId;
             // const user_id = 8;
-            const team_id = req.params.teamId;
+            const teamId = req.params.teamId;
 
-            const manager_ids = await this.teamService.getManagersFromTeam({team_id});
+            const managerIds = await this.teamService.getManagersFromTeam({teamId});
 
-            if(! manager_ids.includes(user_id)) return next(errorHandler(403, 'only managers of this team can add member'));
+            if(! managerIds.includes(userId)) return next(errorHandler(403, 'only managers of this team can add member'));
             
-            const member_id = req.body.memberId;
-            const  updated_team = await this.teamService.addMembertoTeam({team_id, member_id});
+            const memberId = req.body.memberId;
+            const  updatedTeam = await this.teamService.addMembertoTeam({teamId, memberId});
 
-            res.status(200).json({updated_team});
+            res.status(200).json({updatedTeam});
         } catch (error) {
             next(error);
         }
@@ -79,17 +77,17 @@ class TeamController {
     addManager = async (req,res,next) => {
         // only main manager can add other manager
         try {
-            const {user_id} = req.user;
-            const team_id = req.params.teamId;
+            const userId = req.user.user_id;
+            const teamId = req.params.teamId;
 
-            const main_manager_id = await this.teamService.getMainManagerFromTeam({team_id});
+            const mainManagerId = await this.teamService.getMainManagerFromTeam({teamId});
             
-            if(user_id != main_manager_id) return next(errorHandler(403, 'only main manager can add other managers'));
+            if(userId != mainManagerId) return next(errorHandler(403, 'only main manager can add other managers'));
 
-            const manager_id = req.body.managerId;
-            const updated_team  = await this.teamService.addManagertoTeam({team_id, manager_id});
+            const managerId = req.body.managerId;
+            const updatedTeam  = await this.teamService.addManagertoTeam({teamId, managerId});
 
-            res.staus(200).json({updated_team});
+            res.status(200).json({updatedTeam});
         } catch (error) {
             next(error);
         }
@@ -97,17 +95,18 @@ class TeamController {
 
     deleteMember  = async (req,res,next) => {
         try {
-            const team_id = req.params.teamId;
-            const member_id = req.params.memberId;
 
-            const user_id = req.user.user_id;
+            const teamId = req.params.teamId;
+            const memberId = req.params.memberId;
 
-            const manager_ids = await this.teamService.getManagersFromTeam({team_id});
-            if(! manager_ids.includes(user_id)) return next(errorHandler(403, 'only managers of this team can delete member'));
+            const userId = req.user.user_id;
 
-            const updated_team = await this.teamService.deleteMemberFromTeam({team_id, member_id});
+            const manager_ids = await this.teamService.getManagersFromTeam({teamId});
+            if(! manager_ids.includes(uerId)) return next(errorHandler(403, 'only managers of this team can delete member'));
 
-            res.status(200).json({updated_team});
+            const updatedTeam = await this.teamService.deleteMemberFromTeam({teamId, memberId});
+
+            res.status(200).json({updatedTeam});
         } catch (error) {
             next(error);
         }
@@ -116,18 +115,18 @@ class TeamController {
 
     deleteManager  = async (req,res,next) => {
         try {
-            const team_id = req.params.teamId;
-            const manager_id = req.params.memberId;
+            const teamId = req.params.teamId;
+            const managerId = req.params.memberId;
 
-            const user_id = req.user.user_id;
+            const userId = req.user.user_id;
 
-            const main_manager_id = await this.teamService.getMainManagerFromTeam({team_id});
-            // console.log(main_manager_id);
-            if(user_id != main_manager_id) return next(errorHandler(403, 'only main manager of this team can delete other managers'));
+            const mainManagerId = await this.teamService.getMainManagerFromTeam({teamId});
+            // console.log(mainManagerId);
+            if(userId != mainManagerId) return next(errorHandler(403, 'only main manager of this team can delete other managers'));
 
-            const updated_team= await this.teamService.deleteMemberFromTeam({team_id, member_id: manager_id});
+            const updatedTeam = await this.teamService.deleteMemberFromTeam({teamId, memberId: managerId});
             
-            res.status(200).json({updated_team});
+            res.status(200).json({updatedTeam});
         } catch (error) {
             next(error);
         }
@@ -138,20 +137,16 @@ class TeamController {
 
     updateTeam = async (req,res,next) => {
 
-        const {user_id} = req.user;
-        
+        const userId = req.user.user_id;
+        const teamId = req.params.teamId;
 
-        const team_id = req.params.teamId;
+        const mainManagerId = await this.teamService.getMainManagerFromTeam({teamId});
 
-        const main_manager_id = await this.teamService.getMainManagerFromTeam({team_id});
-
-        console.log(user_id, main_manager_id);
-        
-        if(user_id != main_manager_id) return next(errorHandler(403, 'only main manager can add other managers'));
+        if(userId != mainManagerId) return next(errorHandler(403, 'only main manager can add other managers'));
 
         const {managers , members} = req.body;
 
-        const updatedUsers = await this.teamService.upsert({team_id, managers, members});
+        const updatedUsers = await this.teamService.upsert({teamId, managers, members});
 
         res.status(200).json(updatedUsers);
         
