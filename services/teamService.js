@@ -1,6 +1,6 @@
 
 const db = require('../config/dbConfig');
-const { errorHandler } = require('../middleware/error');
+const { errorHandler } = require('../middlewares/error');
 
 
 class TeamService {

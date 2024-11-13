@@ -8,7 +8,7 @@ const teamRouter = require('./routes/teamRouter');
 const authRouter = require('./routes/authRouter');
 
 //
-const {verifyToken, isUser} = require('./middleware/auth');
+const {verifyToken, isUser} = require('./middlewares/auth');
 
 
 const app = express();

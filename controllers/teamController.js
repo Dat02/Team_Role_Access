@@ -1,5 +1,5 @@
 
-const { errorHandler } = require('../middleware/error');
+const { errorHandler } = require('../middlewares/error');
 const TeamService = require('../services/teamService');
 
 class TeamController {

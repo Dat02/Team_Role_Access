@@ -1,8 +1,8 @@
 const router = require('express').Router();
 const teamController = require('../controllers/teamController');
-const { checkRole } = require('../middleware/auth');
-const { getTeamRule,createTeamRule, addMemberRule,deleteManagerRule,deleteMemberRule,addManagerRule } = require('../middleware/rules');
-const inputValidator = require('../middleware/validator');
+const { checkRole } = require('../middlewares/auth');
+const { getTeamRule,createTeamRule, addMemberRule,deleteManagerRule,deleteMemberRule,addManagerRule } = require('../middlewares/rules');
+const inputValidator = require('../middlewares/validator');
 
 
 router.get('/', teamController.getAll);
