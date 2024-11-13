@@ -82,8 +82,39 @@ const updateTeamRule = [
         .toInt()
         .isInt().withMessage('manager ID added must be an integer')
     
-]
+];
+
+const getUserRule = [
+    param('userId')
+        .isInt().withMessage('userId must be an integer')
+];
 
 
+const registerUserRule = [
+    body('username')
+        .isString().withMessage('username must be a string'),
+    body('email')
+        .isEmail().withMessage('email filed is not valid'),
+    body('password')
+        .isString().withMessage('password must be a string'),
+    body('roleId')
+        .isInt().withMessage('role id must be an integer')
+];
 
-module.exports = {getTeamRule, createTeamRule, addMemberRule, deleteMemberRule,deleteManagerRule,addManagerRule, updateTeamRule} 
+const loginUserRule = [
+    body('email')
+        .isEmail().withMessage('email filed is not valid'),
+    body('password')
+        .isString().withMessage('password must be a string')
+];
+
+const getListUserRule = [
+    body('userIds')
+        .isArray().withMessage('user ids must be an array'),
+    body('userIds.*')
+        .isInt().withMessage('each user id must be an id')
+];
+
+
+module.exports = {  getTeamRule, createTeamRule, addMemberRule, deleteMemberRule,deleteManagerRule,addManagerRule,
+                    updateTeamRule, getUserRule, registerUserRule, loginUserRule, getListUserRule   } 

@@ -10,10 +10,8 @@ class TeamController {
 
     getAll = async (req,res,next) => {
         try {
-
             const teams = await this.teamService.getAll();
             res.status(200).json(teams);
-
         } catch (error) {
             next(error);
         }

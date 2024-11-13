@@ -16,12 +16,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-
-
 const PORT = process.env.PORT || 4000;
 app.listen(process.env.PORT, () => {console.log(`server is running ${PORT}`);});
 
-app.use('/', authRouter);
+
+app.use('/users', authRouter);
 app.use('/teams', verifyToken, teamRouter);
 
 
@@ -36,4 +35,5 @@ app.use((err, req, res, next) => {
     errors
   });
 });
+
 
