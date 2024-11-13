@@ -10,7 +10,6 @@ class TeamService {
     }
 
     async create(teamName) {
-        // team: teamName -> teamId
         const teamId = await this.db('teams').insert({teamName}).returning('team_id');
         return teamId;
     }
@@ -21,7 +20,6 @@ class TeamService {
     }
 
     async getAllDetails (){
-
         const users = await db('team_details')
                             .join('teams','teams.team_id', 'team_details.team_id', )
                             .join('users', 'users.user_id', 'team_details.user_id')
@@ -53,34 +51,26 @@ class TeamService {
         });
 
         return allTeam;
-
     }
 
     async getTeam({teamId}) {
-        try {
-            const teams = await db('teams').select('team_name').where('team_id', teamId).first();
-            if(!teams) throw errorHandler(404, 'team not found');
+        const teams = await db('teams').select('team_name').where('team_id', teamId).first();
+        // if(!teams) throw errorHandler(404, 'team not found');
 
-            const teamName = teams.team_name;
+        if(!teams) return {};
 
-            const users = await db('team_details').join('teams','teams.team_id', 'team_details.team_id', )
-                              .join('users', 'users.user_id', 'team_details.user_id')
-                              .select('users.user_id', 'users.user_name','team_details.role_id',)
-                              .where('team_details.team_id', teamId)
-                              .whereIn('team_details.role_id', [3, 4]);
-
-            const managers = [], members = [];
-
-            users.forEach((user) => {
-                if(user.role_id == 3) managers.push({user_id: user.user_id, user_name: user.user_name});
-                if(user.role_id == 4) members.push({user_id: user.user_id, user_name: user.user_name});
-            });
-
-            return {team_id: teamId, team_name: teamName, managers, members};
-        } catch (error) {
-            throw error;
-        }
-        
+        const teamName = teams.team_name;
+        const users = await db('team_details').join('teams','teams.team_id', 'team_details.team_id', )
+                          .join('users', 'users.user_id', 'team_details.user_id')
+                          .select('users.user_id', 'users.user_name','team_details.role_id',)
+                          .where('team_details.team_id', teamId)
+                          .whereIn('team_details.role_id', [3, 4]);
+        const managers = [], members = [];
+        users.forEach((user) => {
+            if(user.role_id == 3) managers.push({user_id: user.user_id, user_name: user.user_name});
+            if(user.role_id == 4) members.push({user_id: user.user_id, user_name: user.user_name});
+        });
+        return {team_id: teamId, team_name: teamName, managers, members};
     }
 
     async createDetail({mainManagerId, teamId, members, managers}) {
@@ -113,7 +103,6 @@ class TeamService {
     }
 
     async getMembersFromTeam({teamId}) {
-
         const members = await this.db('team_details').select('user_id')
                                .join('users', 'users.user_id', 'team_details.user_id')
                                .where('team_details.team_id', teamId)
@@ -134,54 +123,35 @@ class TeamService {
     }
 
     async getMainManagerFromTeam({teamId}){
-        try {
 
-            const main_manager_id = await this.db('team_details').select('users.user_id')
-                               .join('users', 'users.user_id', 'team_details.user_id')
-                               .where('team_details.team_id', teamId)
-                               .where('team_details.role_id', 5).first();
-
-            return main_manager_id ? main_manager_id.user_id : undefined ;
-        } catch (error) {
-            throw error;
-        }
-        
+        const main_manager_id = await this.db('team_details').select('users.user_id')
+                           .join('users', 'users.user_id', 'team_details.user_id')
+                           .where('team_details.team_id', teamId)
+                           .where('team_details.role_id', 5).first();
+    
+        return main_manager_id ? main_manager_id.user_id : undefined ;  
     }
 
     async upsert({teamId, managers, members}){
-
-        try {
-
-            const newTeamInfo = [];
-
-            if(managers){
-                managers.forEach((managerId) => {
-                    newTeamInfo.push({teamId, user_id: managerId, role_id: 3});
-                });
-            }
-
-            if(members){
-                members.forEach((memberId) => {
-                    newTeamInfo.push({teamId, user_id: memberId, role_id: 4});
-                });
-            }
-
-            console.log(newTeamInfo);
-
-            await this.db.transaction(async trx => {
-
-                // delete all users from teamId
-                await trx('team_details').where({teamId}).whereNotIn('role_id', [5]).delete();
-                // insert it again
-                await trx('team_details').insert(newTeamInfo);
-
+        const newTeamInfo = [];
+        if(managers){
+            managers.forEach((managerId) => {
+                newTeamInfo.push({teamId, user_id: managerId, role_id: 3});
             });
-
-            return await this.getTeam({teamId});
-        } catch (error) {
-            console.log(error);
         }
-        
+        if(members){
+            members.forEach((memberId) => {
+                newTeamInfo.push({teamId, user_id: memberId, role_id: 4});
+            });
+        }
+        console.log(newTeamInfo);
+        await this.db.transaction(async trx => {
+            // delete all users from teamId
+            await trx('team_details').where({teamId}).whereNotIn('role_id', [5]).delete();
+            // insert it again
+            await trx('team_details').insert(newTeamInfo);
+        });
+        return await this.getTeam({teamId});
     }
 }
 

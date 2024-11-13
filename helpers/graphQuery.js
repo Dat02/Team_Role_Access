@@ -4,7 +4,6 @@ const  endpoint = process.env.GRAPH_SERVER_URI;
 
 class GraphQuery {
 
-
     getAllUser = async () => 
 
     {
@@ -60,7 +59,7 @@ class GraphQuery {
         const response = await request(endpoint, query, {email,password,username,roleId});
         return response.register;
     }
-
+    
 }
 
 module.exports = new GraphQuery();

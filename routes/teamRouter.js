@@ -12,11 +12,11 @@ router.get('/:teamId',getTeamRule,inputValidator, teamController.getTeam);
 router.post('/', checkRole(3), createTeamRule, inputValidator, teamController.create);
 router.post('/:teamId/members',addMemberRule, inputValidator, teamController.addMember);
 router.post('/:teamId/managers', checkRole(3), addManagerRule, inputValidator,  teamController.addManager);
+// update and insert team
+router.post('/:teamId/update/', inputValidator, teamController.updateTeam);
+
 router.delete('/:teamId/members/:memberId', deleteMemberRule, inputValidator, teamController.deleteMember);
 router.delete('/:teamId/managers/:managerId', checkRole(3),deleteManagerRule, inputValidator, teamController.deleteManager);
-
-// update and insert team
-router.post('/:teamId/all/', inputValidator, teamController.updateTeam);
 
 
 module.exports = router;

@@ -58,7 +58,6 @@ class TeamController {
     addMember =  async (req,res,next) => {
         try {
             const userId =  req.user.userId;
-            // const user_id = 8;
             const teamId = req.params.teamId;
 
             const managerIds = await this.teamService.getManagersFromTeam({teamId});
@@ -95,7 +94,6 @@ class TeamController {
 
     deleteMember  = async (req,res,next) => {
         try {
-
             const teamId = req.params.teamId;
             const memberId = req.params.memberId;
 
@@ -130,29 +128,26 @@ class TeamController {
         } catch (error) {
             next(error);
         }
-
-        
-
     }
 
     updateTeam = async (req,res,next) => {
+        try {
+            const userId = req.user.user_id;
+            const teamId = req.params.teamId;
 
-        const userId = req.user.user_id;
-        const teamId = req.params.teamId;
+            const mainManagerId = await this.teamService.getMainManagerFromTeam({teamId});
 
-        const mainManagerId = await this.teamService.getMainManagerFromTeam({teamId});
+            if(userId != mainManagerId) return next(errorHandler(403, 'only main manager can add other managers'));
 
-        if(userId != mainManagerId) return next(errorHandler(403, 'only main manager can add other managers'));
+            const {managers , members} = req.body;
+            const updatedUsers = await this.teamService.upsert({teamId, managers, members});
 
-        const {managers , members} = req.body;
-
-        const updatedUsers = await this.teamService.upsert({teamId, managers, members});
-
-        res.status(200).json(updatedUsers);
-        
+            res.status(200).json(updatedUsers);
+        } catch (error) {
+            next(error);
+        }
     }
     
-
 }
 
 module.exports = new TeamController();
