@@ -23,6 +23,41 @@ class GraphQuery {
         return response.users;
     }
 
+    getUser = async (userId) => {
+
+        const query =  gql `
+            query getUser($userId: ID!) {
+                user(userId: $userId) {
+                    user_id,
+                    user_name,
+                    email,
+                    password,
+                    role_id
+                }
+            }
+        `;
+
+        const response = await request(endpoint, query, {userId});
+        return response.user;
+    }
+
+    getListUser = async (userIds) => {
+        const query =  gql `
+            query getListUsers($userIds: [ID!]) {
+                listUsers (userIds: $userIds) {
+                    user_id,
+                    user_name,
+                    email,
+                    password,
+                    role_id
+                }
+            }
+        `;
+
+        const response = await request(endpoint, query, {userIds});
+        return response.listUsers;
+    }
+
     login = async ({email,password}) => {
         // console.log(email, password);
         const query = gql `
@@ -59,7 +94,7 @@ class GraphQuery {
         const response = await request(endpoint, query, {email,password,username,roleId});
         return response.register;
     }
-    
+
 }
 
 module.exports = new GraphQuery();

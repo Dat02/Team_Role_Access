@@ -1,7 +1,5 @@
 
 const db = require('../config/dbConfig');
-const { errorHandler } = require('../middlewares/error');
-
 
 class TeamService {
 
@@ -56,7 +54,6 @@ class TeamService {
     async getTeam({teamId}) {
         const teams = await db('teams').select('team_name').where('team_id', teamId).first();
         // if(!teams) throw errorHandler(404, 'team not found');
-
         if(!teams) return {};
 
         const teamName = teams.team_name;
@@ -65,6 +62,7 @@ class TeamService {
                           .select('users.user_id', 'users.user_name','team_details.role_id',)
                           .where('team_details.team_id', teamId)
                           .whereIn('team_details.role_id', [3, 4]);
+        
         const managers = [], members = [];
         users.forEach((user) => {
             if(user.role_id == 3) managers.push({user_id: user.user_id, user_name: user.user_name});
@@ -80,6 +78,7 @@ class TeamService {
         const managerRecords = managers.map((managerId) => {
             return {user_id: managerId, team_id: teamId, role_id: 3};
         });
+
         const insertMainManger  = await this.db('team_details').insert({user_id: mainManagerId, team_id: teamId, role_id: 5}).returning('*');
         const insertMembers = await this.db('team_details').insert(memberRecords).returning('*');
         const insertManagers = await this.db('team_details').insert(managerRecords).returning('*');
@@ -118,6 +117,7 @@ class TeamService {
                                .join('users', 'users.user_id', 'team_details.user_id')
                                .where('team_details.team_id', teamId)
                                .where('team_details.role_id', 3);
+
         const managerIds = managers.map((manager) => manager.user_id);
         return managerIds;
     }
@@ -148,7 +148,7 @@ class TeamService {
         await this.db.transaction(async trx => {
             // delete all users from teamId
             await trx('team_details').where({teamId}).whereNotIn('role_id', [5]).delete();
-            // insert it again
+            // insert new team back
             await trx('team_details').insert(newTeamInfo);
         });
         return await this.getTeam({teamId});
