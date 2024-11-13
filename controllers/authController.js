@@ -1,5 +1,3 @@
-const { cookie } = require('express-validator');
-const {request, gql}  = require('graphql-request');
 const GraphQuery = require('../helpers/graphQuery');
 
 class AuthController {

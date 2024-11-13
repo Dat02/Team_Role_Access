@@ -1,5 +1,5 @@
 
-const {errorHandler} = require('./error');
+const {errorHandler} = require('../helpers/errorHandler');
 const jwt = require('jsonwebtoken');
 
 
