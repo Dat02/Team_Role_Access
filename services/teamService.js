@@ -99,7 +99,12 @@ class TeamService {
     }
 
     async deleteMemberFromTeam({teamId, memberId}){
-        await this.db('team_details').where({team_id: teamId, user_id: memberId}).delete();
+        await this.db('team_details').where({team_id: teamId, user_id: memberId, role_id: MEMBER_ROLE_ID}).delete();
+        return await this.getTeam({teamId});
+    }
+
+    async deleteManagerFromTeam({teamId, managerId}){
+        await this.db('team_details').where({team_id: teamId, user_id: memberId, role_id: MANAGER_ROLE_ID}).delete();
         return await this.getTeam({teamId});
     }
 

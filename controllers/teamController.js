@@ -74,8 +74,6 @@ class TeamController {
             const teamId = req.params.teamId;
 
             const mainManagerId = await this.teamService.getMainManagerFromTeam({teamId});
-
-            console.log(userId, mainManagerId);
             
             if(userId != mainManagerId) return next(errorHandler(403, 'only main manager can add other managers'));
 
@@ -118,7 +116,7 @@ class TeamController {
             // console.log(mainManagerId);
             if(userId != mainManagerId) return next(errorHandler(403, 'only main manager of this team can delete other managers'));
 
-            const updatedTeam = await this.teamService.deleteMemberFromTeam({teamId, memberId: managerId});
+            const updatedTeam = await this.teamService.deleteManagerFromTeam({teamId, memberId: managerId});
             
             res.status(200).json({updatedTeam});
         } catch (error) {
