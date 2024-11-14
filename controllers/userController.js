@@ -1,6 +1,6 @@
 const GraphQuery = require('../helpers/graphQuery');
 
-class AuthController {
+class UserController {
     constructor() {
         this.graphQuery = GraphQuery;
     }
@@ -35,7 +35,7 @@ class AuthController {
         }
     }
 
-    register = async(req,res, next) => {
+    signUp = async(req,res, next) => {
         try {
             const {email,username, password, roleId} = req.body;
             const {token,user} = await this.graphQuery.register({email,password,username,roleId});
@@ -70,4 +70,4 @@ class AuthController {
 
 }
 
-module.exports  = new AuthController(); 
+module.exports  = new UserController(); 

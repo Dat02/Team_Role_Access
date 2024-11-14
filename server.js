@@ -5,10 +5,10 @@ require('dotenv').config();
 
 //route to services
 const teamRouter = require('./routes/teamRouter');
-const authRouter = require('./routes/authRouter');
+const authRouter = require('./routes/userRouter');
 
 //
-const {verifyToken, isUser} = require('./middlewares/auth');
+const {verifyToken} = require('./middlewares/auth');
 
 
 const app = express();

@@ -39,15 +39,11 @@ class TeamController {
 
     create = async (req,res,next) => {
         try {
-
-            console.log(req.user);
-            const {role_id, user_id} = req.user;
-
+            const {user_id} = req.user;
+            console.log(user_id);
             const {teamName, members, managers} = req.body;
-            const teamId = await (await this.teamService.create(teamName)).at(0).team_id;
-            const teams = await this.teamService.createDetail({mainManagerId: user_id,teamId, members, managers});
-
-            res.status(200).json({teamId, teamName, members, managers});
+            const result = await this.teamService.create({teamName, mainManagerId: user_id, members, managers});
+            res.status(200).json(result);
         } catch (error) {
             next(error);   
         }
@@ -55,12 +51,12 @@ class TeamController {
 
     addMember =  async (req,res,next) => {
         try {
-            const userId =  req.user.userId;
+            const user_id =  req.user.user_id;
             const teamId = req.params.teamId;
 
             const managerIds = await this.teamService.getManagersFromTeam({teamId});
 
-            if(! managerIds.includes(userId)) return next(errorHandler(403, 'only managers of this team can add member'));
+            if(! managerIds.includes(user_id)) return next(errorHandler(403, 'only managers of this team can add member'));
             
             const memberId = req.body.memberId;
             const  updatedTeam = await this.teamService.addMembertoTeam({teamId, memberId});
@@ -78,6 +74,8 @@ class TeamController {
             const teamId = req.params.teamId;
 
             const mainManagerId = await this.teamService.getMainManagerFromTeam({teamId});
+
+            console.log(userId, mainManagerId);
             
             if(userId != mainManagerId) return next(errorHandler(403, 'only main manager can add other managers'));
 
@@ -98,7 +96,7 @@ class TeamController {
             const userId = req.user.user_id;
 
             const manager_ids = await this.teamService.getManagersFromTeam({teamId});
-            if(! manager_ids.includes(uerId)) return next(errorHandler(403, 'only managers of this team can delete member'));
+            if(! manager_ids.includes(userId)) return next(errorHandler(403, 'only managers of this team can delete member'));
 
             const updatedTeam = await this.teamService.deleteMemberFromTeam({teamId, memberId});
 
@@ -112,7 +110,7 @@ class TeamController {
     deleteManager  = async (req,res,next) => {
         try {
             const teamId = req.params.teamId;
-            const managerId = req.params.memberId;
+            const managerId = req.params.managerId;
 
             const userId = req.user.user_id;
 
