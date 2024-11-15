@@ -19,5 +19,6 @@ router.post('/:teamId/update/', updateTeamRule, inputValidator, teamController.u
 router.delete('/:teamId/members/:memberId', deleteMemberRule, inputValidator, teamController.deleteMember);
 router.delete('/:teamId/managers/:managerId', checkRole(process.env.MANAGER_ROLE_ID), deleteManagerRule, inputValidator, teamController.deleteManager);
 
+router.post('/recursive', teamController.getRecursive);
 
 module.exports = router;

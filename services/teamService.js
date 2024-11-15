@@ -115,10 +115,11 @@ class TeamService {
     }
 
     async getMembersFromTeam({teamId}) {
-        const members = await this.db('team_details').select('user_id')
-                               .join('users', 'users.user_id', 'team_details.user_id')
-                               .where('team_details.team_id', teamId)
-                               .where('team_details.role_id', MEMBER_ROLE_ID) ;
+        const members = await this.db('team_details')
+                                    .select('user_id')
+                                    .join('users', 'users.user_id', 'team_details.user_id')
+                                    .where('team_details.team_id', teamId)
+                                    .where('team_details.role_id', MEMBER_ROLE_ID) ;
 
         const membeIds = members.map((member) => member.user_id);
 
@@ -126,13 +127,37 @@ class TeamService {
     }
 
     async getManagersFromTeam({teamId}){
-        const managers = await this.db('team_details').select('users.user_id')
-                               .join('users', 'users.user_id', 'team_details.user_id')
-                               .where('team_details.team_id', teamId)
-                               .where('team_details.role_id', MANAGER_ROLE_ID);
+        const managers = await this.db('team_details')
+                                    .select('users.user_id')
+                                    .join('users', 'users.user_id', 'team_details.user_id')
+                                    .where('team_details.team_id', teamId)
+                                    .where('team_details.role_id', MANAGER_ROLE_ID);
 
         const managerIds = managers.map((manager) => manager.user_id);
         return managerIds;
+    }
+
+    async getAllManagerFromMembers(users){
+        const allManager = new Set();
+        const records = await this.db('team_details').select('*');
+                                
+        users.forEach((userId) => {
+            const currentTeamId = [];
+
+            // list all team that this member join as member role
+            for(const record of records){
+                if(record.role_id == MEMBER_ROLE_ID && record.user_id == userId) currentTeamId.push(record.team_id);
+            }
+
+            //get managers from a team
+            for(const teamId of currentTeamId){
+                for(const record of records){
+                    if(record.team_id == teamId && record.role_id == MANAGER_ROLE_ID) allManager.add(record.user_id);
+                }
+            }
+        });
+
+        return [...allManager];        
     }
 
     async getMainManagerFromTeam({teamId}){

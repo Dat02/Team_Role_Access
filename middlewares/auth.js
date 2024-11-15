@@ -1,6 +1,9 @@
 
 const {errorHandler} = require('../helpers/errorHandler');
 const jwt = require('jsonwebtoken');
+const teamService = require('../services/teamService');
+const advertiserService = require('../services/advertiserService');
+const campaignService = require('../services/campaignService');
 
 
 const verifyToken = (req,res,next) => {
@@ -24,4 +27,84 @@ const checkRole = (assign) => {
     }
 }
 
-module.exports = {verifyToken, checkRole}
+const isCampaignViewer = async (req,res,next) => {
+    const userId = req.user.user_id;
+    const {campaignId} = req.params;
+
+    const editors = await campaignService.findEditorsById(campaignId);
+    const viewers = await campaignService.findViewersById(campaignId);
+
+    const advertiserId = await campaignService.findAvertiserbyId(campaignId);
+    const owner = await advertiserService.findOwnerById(advertiserId);
+
+    const advertiserEditors = await advertiserService.findEditorsById(advertiserId);
+    const advertiserViewers = await advertiserService.findViewersById(advertiserId);
+
+    const editorAndViewerMangers = await teamService.getAllManagerFromMembers([...advertiserEditors, ...advertiserViewers, owner]);
+    const allViewrAccepted = [...editors, ...viewers, ...editorAndViewerMangers, owner];
+
+    if(!allViewrAccepted.includes(userId)) return next(errorHandler(403, 'not the campagin viewer'));
+
+    next();
+}
+
+const isCampaignEditor = async (req,res,next) => {
+    const userId = req.user.user_id;
+    const {campaignId} = req.params;
+
+    const editors = await campaignService.findEditorsById(campaignId);
+
+    const advertiserId = await campaignService.findAvertiserbyId(campaignId);
+
+    const owner = await advertiserService.findOwnerById(advertiserId);
+    const advertiserEditors = await advertiserService.findEditorsById(advertiserId);
+    const editorMangers = await teamService.getAllManagerFromMembers([...advertiserEditors, owner]);
+
+    const allEditorAccepted = [...editors, ...advertiserEditors, ...editorMangers, owner];
+    if(!allEditorAccepted.includes(userId)) return next(errorHandler(403, 'not the campaign editor'));
+
+    next();
+}
+
+const isAdvertiserViewer = async (req,res,next) => {
+    const userId = req.user.user_id;
+    const {advertiserId} = req.params;
+
+    const owner = await advertiserService.findOwnerById(advertiserId);
+    const editors = await advertiserService.findEditorsById(advertiserId);
+    const viewers = await advertiserService.findViewersById(advertiserId);
+    const viwerManagers = await teamService.getAllManagerFromMembers([...editors, ...viewers, owner]);
+
+    const allViewerAccepted = [...editors, ...viewers, ...viwerManagers, owner];
+    if(!allViewerAccepted.includes(userId)) return next(errorHandler(403, 'not the advertiser viwers'));
+
+    next();
+}
+
+const isAdvertiserEditor = async (req,res,next) => {
+    const userId = req.user.user_id;
+    const {advertiserId} = req.params;
+
+    const owner = await advertiserService.findOwnerById(advertiserId);
+
+    const editors = await advertiserService.findEditorsById(advertiserId);
+    const editorManagers = await teamService.getAllManagerFromMembers([...editors,owner]);
+
+    const allEditorAccepted = [...editors, ...editorManagers, owner];
+    console.log(allEditorAccepted);
+    if(!allEditorAccepted.includes(userId)) return next(errorHandler(403, 'not the advertiser editors'));
+
+    next();
+}
+
+const isAdvertiserOwner = async (req,res,next) => {
+    const userId = req.user.user_id;
+    const {advertiserId} = req.params;
+
+    const owner = await advertiserService.findOwnerById(advertiserId);
+    if(userId != owner) return next(errorHandler(403, 'not the advertiser owner'));
+
+    next();
+}
+
+module.exports = {verifyToken, checkRole, isAdvertiserEditor, isAdvertiserOwner, isCampaignEditor, isCampaignViewer, isAdvertiserViewer};

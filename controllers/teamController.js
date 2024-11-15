@@ -141,6 +141,17 @@ class TeamController {
             next(error);
         }
     }
+
+    // test controller
+    getRecursive = async (req,res,next) => {
+        try {
+            const users = req.body.users;
+            const allManager = await this.teamService.getAllManagerFromMembers(users);
+            res.status(200).json(allManager);
+        } catch (error) {
+            next(error);
+        }
+    }
     
 }
 

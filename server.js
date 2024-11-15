@@ -6,6 +6,8 @@ require('dotenv').config();
 //route to services
 const teamRouter = require('./routes/teamRouter');
 const authRouter = require('./routes/userRouter');
+const advertiserRouter = require('./routes/advertiserRouter');
+const campaignRouter = require('./routes/campaignRouter');
 
 //
 const {verifyToken} = require('./middlewares/auth');
@@ -22,6 +24,8 @@ app.listen(process.env.PORT, () => {console.log(`server is running ${PORT}`);});
 
 app.use('/users', authRouter);
 app.use('/teams', verifyToken, teamRouter);
+app.use('/advertisers',verifyToken, advertiserRouter);
+app.use('/campaigns',verifyToken, campaignRouter);
 
 
 app.use((err, req, res, next) => {
