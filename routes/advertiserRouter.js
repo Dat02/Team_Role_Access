@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const advertiserController = require('../controllers/advertiserController');
 const campaignController = require('../controllers/campaignController');
-const { isAdvertiserEditor, isAdvertiserViewer } = require('../middlewares/auth');
+const { isAdvertiserEditor, isAdvertiserViewer, isCampaignViewer } = require('../middlewares/auth');
 
-router.get('/', advertiserController.getAll);
+router.get('/', advertiserController.getAllAccessAdvertiser);
 router.get('/details', advertiserController.getAllDetails);
 router.get('/:advertiserId', isAdvertiserViewer, advertiserController.getOne);
 router.get('/details/:advertiserId',isAdvertiserViewer, advertiserController.getOneDetail);

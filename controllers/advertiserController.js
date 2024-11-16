@@ -6,10 +6,11 @@ class AdvertiserController {
         this.advertiserService = advertiserService;
     }
 
-    getAll = async (req,res,next) => {
+    getAllAccessAdvertiser = async (req,res,next) => {
         try {
-            const advertisers = await this.advertiserService.findAll();
-            res.status(200).json(advertisers);
+            const userId = req.user.user_id;
+            const advertisers = await this.advertiserService.findAllAccess(userId);
+            res.status(200).json({advertisers});
         } catch (error) {
            next(error); 
         }

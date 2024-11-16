@@ -1,6 +1,7 @@
 const knex = require('../config/dbConfig');
 const { errorHandler } = require('../helpers/errorHandler');
 const campaignService = require('./campaignService');
+const teamService = require('./teamService');
 const editor_role_id = process.env.EDITOR_ROLE_ID;
 const viewer_role_id = process.env.VIEWER_ROLE_ID;
 
@@ -9,6 +10,7 @@ class AdvertiserService {
     constructor() {
         this.db = knex;
         this.campaignService = campaignService;
+        // this.teamService = teamService;
     }
 
     findAll = async () => {
@@ -18,6 +20,35 @@ class AdvertiserService {
             throw errorHandler(503, error.message);
         }
     }
+
+    findAllAccess = async (userId) => {
+        try {
+            const managers = await teamService.findMyMembers(userId);
+            const users = [userId, ...managers];
+            const advertisers = await this.findAdvertiserByUserIds(users);
+            return advertisers;
+        } catch (error) {
+            throw errorHandler(503, error.message);
+        }
+    }
+
+    findAdvertiserByUserIds = async (users) => {
+        try {
+            const advertisers = await this.db('advertiser_details')
+                                    .join('advertisers', 'advertiser_details.advertiser_id', 'advertisers.advertiser_id')
+                                    .select('advertisers.*')
+                                    .whereIn('user_id', users)
+                                    .orWhereIn('owner_id', users)
+                                    .distinct();
+
+            return advertisers;
+        } catch (error) {
+            throw errorHandler(503, error.message);
+        }
+    }
+
+    
+    
 
     findAllDetails = async () => {
         try {
@@ -203,6 +234,7 @@ class AdvertiserService {
             throw errorHandler(503, error.message);
         }
     }
+
 
     update = async (advertiser) => {
         try {

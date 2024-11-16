@@ -2,6 +2,7 @@ const knex = require('../config/dbConfig');
 const { errorHandler } = require('../helpers/errorHandler');
 const editor_role_id = process.env.EDITOR_ROLE_ID;
 const viewer_role_id = process.env.VIEWER_ROLE_ID;
+const teamService = require('./teamService');
 
 class CampaignService {
 
@@ -12,6 +13,37 @@ class CampaignService {
     findAll = async () => {
         try {
             return await this.db('campaigns').select('*');
+        } catch (error) {
+            throw errorHandler(503, error.message);
+        }
+    }
+
+    findAllAccess = async (userId) => {
+        try {
+            const managers = await teamService.findMyMembers(userId);
+            const users = [...managers, userId];
+            console.log(users);
+            const campaigns = await this.findCampaignsByUserIds(users);
+            return campaigns;
+        } catch (error) {
+            throw errorHandler(503, error.message);
+        }
+    }
+
+    findCampaignsByUserIds = async (users) => {
+        try {
+            const campaigns = await this.db('campaigns')
+                                    .leftJoin('campaign_details', 'campaigns.campaign_id', 'campaign_details.campaign_id')
+                                    .leftJoin('advertiser_details', 'campaigns.advertiser_id', 'advertiser_details.advertiser_id')
+                                    .leftJoin('advertisers', 'campaigns.advertiser_id','advertisers.advertiser_id')
+                                    .select('campaigns.*')
+                                    .whereIn('advertiser_details.user_id', users)
+                                    .orWhereIn('campaign_details.user_id',users)
+                                    .orWhereIn('advertisers.owner_id', users)
+                                    .distinct();
+
+
+            return campaigns;
         } catch (error) {
             throw errorHandler(503, error.message);
         }
@@ -112,8 +144,11 @@ class CampaignService {
 
     saveDetails = async ({campaignId, editors, viewers}) => {
         try {
+            if(!editors) editors = [];
+            if(!viewers) viewers = [];
+
             const editorRecords = editors.map((editorId) => {
-            return {user_id: editorId, campaign_id: campaignId, role_id: editor_role_id};
+                return {user_id: editorId, campaign_id: campaignId, role_id: editor_role_id};
             });
             const viewerRecords = viewers.map((viewerId) => {
                 return {user_id: viewerId, campaign_id: campaignId, role_id: viewer_role_id};
@@ -128,6 +163,8 @@ class CampaignService {
 
     deleteDetails = async ({campaignId, editors, viewers}) => {
         try {
+            if(!editors) editors = [];
+            if(!viewers) viewers = [];
             await this.db.transaction(async (trx) => {
                 // delete editor permission
                 await trx('campaign_details')

@@ -145,8 +145,8 @@ class TeamController {
     // test controller
     getRecursive = async (req,res,next) => {
         try {
-            const users = req.body.users;
-            const allManager = await this.teamService.getAllManagerFromMembers(users);
+            const userId = req.user.user_id;
+            const allManager = await this.teamService.findMyMembers(userId);
             res.status(200).json(allManager);
         } catch (error) {
             next(error);

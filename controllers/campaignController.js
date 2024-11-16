@@ -5,9 +5,10 @@ class CampaignController {
         this.campaignService = campaignService;
     }
 
-    getAll = async (req,res,next) => {
+    getAllAccess = async (req,res,next) => {
         try {
-            const campaigns = await this.campaignService.findAll();
+            const userId = req.user.user_id;
+            const campaigns = await this.campaignService.findAllAccess(userId);
             res.status(200).json(campaigns);
         } catch (error) {
             next(error);
@@ -90,7 +91,7 @@ class CampaignController {
             const {campaignId} = req.params;
             const {campaignName} = req.body;
 
-            const updatedCampaign = await this.campaignService.update({campaignId,advertiserName});
+            const updatedCampaign = await this.campaignService.update({campaignId,campaignName});
             res.status(200).json({updatedCampaign});
         } catch (error) {
             next(error);

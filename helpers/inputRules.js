@@ -116,5 +116,6 @@ const getListUserRule = [
 ];
 
 
+
 module.exports = {  getTeamRule, createTeamRule, addMemberRule, deleteMemberRule,deleteManagerRule,addManagerRule,
                     updateTeamRule, getUserRule, registerUserRule, loginUserRule, getListUserRule   } 

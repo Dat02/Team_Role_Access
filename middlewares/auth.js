@@ -61,6 +61,7 @@ const isCampaignEditor = async (req,res,next) => {
     const editorMangers = await teamService.getAllManagerFromMembers([...advertiserEditors, owner]);
 
     const allEditorAccepted = [...editors, ...advertiserEditors, ...editorMangers, owner];
+
     if(!allEditorAccepted.includes(userId)) return next(errorHandler(403, 'not the campaign editor'));
 
     next();

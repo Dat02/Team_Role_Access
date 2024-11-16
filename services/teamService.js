@@ -1,5 +1,6 @@
 
 const db = require('../config/dbConfig');
+const { errorHandler } = require('../helpers/errorHandler');
 const MEMBER_ROLE_ID = process.env.MEMBER_ROLE_ID;
 const MANAGER_ROLE_ID = process.env.MANAGER_ROLE_ID;
 
@@ -158,6 +159,28 @@ class TeamService {
         });
 
         return [...allManager];        
+    }
+
+    async findMyMembers(userId){
+        try {
+            const allMember = new Set();
+            const records = await this.db('team_details').select('*');
+
+            const teams = records.reduce((acc, record) => {
+                if(record.user_id == userId && record.role_id == MANAGER_ROLE_ID) acc.push(record.team_id);
+                return acc;
+            },[]);
+
+            for(const teamId of teams){
+                for (const record of records){
+                    if(record.team_id == teamId && record.role_id == MEMBER_ROLE_ID) allMember.add(record.user_id);
+                }
+            }
+            console.log([...allMember]);
+            return [...allMember];    
+        } catch (error) {
+            throw errorHandler(503, error.message);
+        }
     }
 
     async getMainManagerFromTeam({teamId}){
