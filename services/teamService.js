@@ -176,7 +176,7 @@ class TeamService {
                     if(record.team_id == teamId && record.role_id == MEMBER_ROLE_ID) allMember.add(record.user_id);
                 }
             }
-            console.log([...allMember]);
+
             return [...allMember];    
         } catch (error) {
             throw errorHandler(503, error.message);
@@ -202,7 +202,6 @@ class TeamService {
                 newTeamInfo.push({team_id: teamId, user_id: memberId, role_id: MEMBER_ROLE_ID});
             });
         }
-        console.log(newTeamInfo);
         await this.db.transaction(async trx => {
             // delete all users from teamId
             await trx('team_details').where('team_id', teamId).delete();

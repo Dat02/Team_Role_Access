@@ -22,7 +22,6 @@ class CampaignService {
         try {
             const managers = await teamService.findMyMembers(userId);
             const users = [...managers, userId];
-            console.log(users);
             const campaigns = await this.findCampaignsByUserIds(users);
             return campaigns;
         } catch (error) {
@@ -62,7 +61,7 @@ class CampaignService {
                                             'users.user_name',
                                             'users.user_id'
                                         );
-            console.log(records);
+
             const adMap = new Map();
             const roleMap  = new Map();
 

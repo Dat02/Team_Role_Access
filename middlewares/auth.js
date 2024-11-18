@@ -39,9 +39,10 @@ const isCampaignViewer = async (req,res,next) => {
 
     const advertiserEditors = await advertiserService.findEditorsById(advertiserId);
     const advertiserViewers = await advertiserService.findViewersById(advertiserId);
+    console.log(advertiserViewers);
 
     const editorAndViewerMangers = await teamService.getAllManagerFromMembers([...advertiserEditors, ...advertiserViewers, owner]);
-    const allViewrAccepted = [...editors, ...viewers, ...editorAndViewerMangers, owner];
+    const allViewrAccepted = [...editors, ...viewers, ...advertiserEditors, ...advertiserViewers,...editorAndViewerMangers, owner];
 
     if(!allViewrAccepted.includes(userId)) return next(errorHandler(403, 'not the campagin viewer'));
 

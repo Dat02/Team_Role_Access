@@ -40,7 +40,6 @@ class TeamController {
     create = async (req,res,next) => {
         try {
             const {user_id} = req.user;
-            console.log(user_id);
             const {teamName, members, managers} = req.body;
             const result = await this.teamService.create({teamName, mainManagerId: user_id, members, managers});
             res.status(200).json(result);

@@ -92,12 +92,16 @@ const getUserRule = [
 
 const registerUserRule = [
     body('username')
+        .notEmpty()
         .isString().withMessage('username must be a string'),
     body('email')
+        .notEmpty()
         .isEmail().withMessage('email filed is not valid'),
     body('password')
+        .notEmpty()
         .isString().withMessage('password must be a string'),
     body('roleId')
+        .notEmpty()
         .isInt().withMessage('role id must be an integer')
 ];
 
@@ -115,7 +119,95 @@ const getListUserRule = [
         .isInt().withMessage('each user id must be an id')
 ];
 
+const createAdvertiserRule = [
+    body('advertiserName')
+        .notEmpty()
+        .isString().withMessage('advertise name must be string'),
+    body('branchName')
+        .isString().withMessage('advertiser branch name must be a string'),
+    body('website')
+    .isString().withMessage('advertiser website must be a string'),
+    body('editors')
+        .notEmpty()
+        .isArray().withMessage('advertiser editors must be an array'),
+    body('editors.*')
+        .toInt()
+        .isInt().withMessage('editor ID must  be an integer'),
+    body('viewers')
+        .notEmpty()
+        .isArray().withMessage('advertiser viewers must be an array'),
+    body('viewers.*')
+        .toInt()
+        .isInt().withMessage('viewer ID must  be an integer'),
+];
+
+const shareAdvertiserRule = [
+    param('advertiserId')
+        .isInt().withMessage('advertiser id to be shared must be an integer'),
+
+    body('editors')
+        .notEmpty()
+        .isArray().withMessage('advertiser editors must be an array'),
+    body('editors.*')
+        .toInt()
+        .isInt().withMessage('editor ID must  be an integer'),
+    body('viewers')
+        .notEmpty()
+        .isArray().withMessage('advertiser viewers must be an array'),
+    body('viewers.*')
+        .toInt()
+        .isInt().withMessage('viewer ID must  be an integer'),
+];
+
+const shareCampaignRule = [
+    param('campaign')
+        .isInt().withMessage('advertiser id to be shared must be an integer'),
+
+    body('editors')
+        .notEmpty()
+        .isArray().withMessage('advertiser editors must be an array'),
+    body('editors.*')
+        .toInt()
+        .isInt().withMessage('editor ID must  be an integer'),
+    body('viewers')
+        .notEmpty()
+        .isArray().withMessage('advertiser viewers must be an array'),
+    body('viewers.*')
+        .toInt()
+        .isInt().withMessage('viewer ID must  be an integer'),
+];
+
+const createCampaignRule = [
+    body('campaignName')
+        .notEmpty()
+        .isString().withMessage('campaign name must be a string'),
+    body('startDate')
+        .isISO8601().withMessage('start date must be a valide time'),
+    body('endDate')
+        .isISO8601().withMessage('start date must be a valide time'),
+
+    body('editors')
+        .notEmpty()
+        .isArray().withMessage('advertiser editors must be an array'),
+    body('editors.*')
+        .toInt()
+        .isInt().withMessage('editor ID must  be an integer'),
+    body('viewers')
+        .notEmpty()
+        .isArray().withMessage('advertiser viewers must be an array'),
+    body('viewers.*')
+        .toInt()
+        .isInt().withMessage('viewer ID must  be an integer'),
+]
+
+const updateRule = [
+    param('campaignId')
+        .isInt().withMessage('campaign id must be an integer'),
+    param('advertiserId')
+        .isInt().withMessage('advertiser id must be an integer')
+]
 
 
 module.exports = {  getTeamRule, createTeamRule, addMemberRule, deleteMemberRule,deleteManagerRule,addManagerRule,
-                    updateTeamRule, getUserRule, registerUserRule, loginUserRule, getListUserRule   } 
+                    updateTeamRule, getUserRule, registerUserRule, loginUserRule, getListUserRule, createAdvertiserRule,
+                    shareAdvertiserRule, shareCampaignRule, createCampaignRule, updateRule } 
