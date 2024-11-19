@@ -109,4 +109,10 @@ const isAdvertiserOwner = async (req,res,next) => {
     next();
 }
 
-module.exports = {verifyToken, checkRole, isAdvertiserEditor, isAdvertiserOwner, isCampaignEditor, isCampaignViewer, isAdvertiserViewer};
+const isAdmin = () => {
+    const roleId = req.user.role_id;
+    if(roleId != process.env.ADMIN_ROLE_ID) return next(errorHandler(403, 'not the admin system'));
+    next();
+}
+
+module.exports = {verifyToken, checkRole, isAdvertiserEditor, isAdvertiserOwner, isCampaignEditor, isCampaignViewer, isAdvertiserViewer, isAdmin};

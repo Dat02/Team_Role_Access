@@ -238,11 +238,12 @@ class AdvertiserService {
 
     update = async (advertiser) => {
         try {
-            const {advertiserId, advertiserName, branchName, website} = advertiser;
+            const {advertiserId, advertiserName, branchName, website, ownerId} = advertiser;
             const newRecord = {};
             if(advertiserName) newRecord.advertiser_name = advertiserName;
             if(branchName) newRecord.branch_name = branchName;
             if(website) newRecord.website = website;
+            if(ownerId) newRecord.ownerId = ownerId;
             newRecord.updated_at = new Date();
 
             await this.db('advertisers')
@@ -254,9 +255,6 @@ class AdvertiserService {
             throw errorHandler(503, error.message);
         }
     }
-
-
-
 
 }
 

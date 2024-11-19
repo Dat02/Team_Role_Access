@@ -7,9 +7,21 @@ class UserController {
 
     getAllUser = async(req,res,next) => {
         try {
-            const users = await this.graphQuery.getAllUser();
+            // const users = await this.graphQuery.getAllUser();
+            const users = [
+                    {
+                        'user_id': 27,
+                        'user_name': 'justatee'
+                    },
+                    {
+                        'user_id': 28,
+                        'user_name': 'bray'
+                    }
+                ];
+            
             res.status(200).json(users);
         } catch (error) {
+            console.log(error);
             next(error);
         }
     }

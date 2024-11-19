@@ -14,6 +14,7 @@ router.post('/', createAdvertiserRule, inputValidator, advertiserController.crea
 router.post('/:advertiserId/campaigns', createCampaignRule, inputValidator, isAdvertiserEditor, campaignController.create);
 router.post('/:advertiserId/share', shareAdvertiserRule, inputValidator, isAdvertiserEditor,  advertiserController.share);
 router.post('/:advertiserId/unshare', shareAdvertiserRule, inputValidator, isAdvertiserEditor,  advertiserController.unshare);
+router.post('/advertiserId/resetowner/:ownerId', advertiserController.assignOwner);
 
 router.put('/:advertiserId', updateRule, inputValidator, isAdvertiserEditor, advertiserController.update);
 

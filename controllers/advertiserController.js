@@ -98,6 +98,16 @@ class AdvertiserController {
             next(error);
         }
     }
+
+    assignOwner = async (req,res,next) => {
+        try {
+            const {advertiserId, ownerId} = req.params;
+            const updatedAdvertiser = await this.advertiserService.update({advertiserId,ownerId});
+            res.status(200).json({updatedAdvertiser});
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new AdvertiserController();
